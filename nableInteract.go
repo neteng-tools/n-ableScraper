@@ -197,6 +197,17 @@ func (n *NewPage) discoveredNameCheckBox() *rod.Element {
     return n.Page.MustElement(discoveredNameCheckBox)
 
 }
+
+func (n *NewPage) inputOsName(osName string) *NewPage {
+    const (
+        osNameField = "#deviceOsId"
+    )
+	n.Page.MustWaitStable()
+    n.Page.MustElement(osNameField).MustSelectAllText().MustInput(osName) 
+    time.Sleep(n.ShortWait)
+    return n
+}
+
 //grabs the ID for the checkbox on the Properties page and makes sure it's unchecked. It also checks if it's currently checked
 func (n *NewPage) uncheckUseDiscovered() *NewPage {
 	n.Page.MustWaitStable()
