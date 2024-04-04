@@ -8,14 +8,14 @@ import (
 	"github.com/neteng-tools/cliPrompt"
 )
 
-type Nable struct {
+type NewPage struct {
     Page *rod.Page
     ShortWait time.Duration
     MedWait time.Duration
     LongWait time.Duration
 }
 
-func (n *Nable) Fill_Defaults() *Nable {
+func (n *NewPage) Fill_Defaults() *NewPage {
 	if n.ShortWait == 0 {
 		n.ShortWait = 100 * time.Millisecond
 	}
@@ -28,13 +28,13 @@ func (n *Nable) Fill_Defaults() *Nable {
 	return n
 }
 
-func (n *Nable) Connect(url string) *Nable {
+func (n *NewPage) Connect(url string) *NewPage {
 	n.Page = rod.New().MustConnect().MustPage(url)
 	n.Fill_Defaults()
 	return n
 }
 
-func (n *Nable) Login() {
+func (n *NewPage) Login() {
     const (
         usernameField string = "#userNameId"
         passwordField string = "#passwordFieldId"
@@ -84,7 +84,7 @@ func (n *Nable) Login() {
 
 }
 
-func (n *Nable) AllDevicesPage() {
+func (n *NewPage) AllDevicesPage() {
 	fmt.Println("Navigating to Device Page")
     const allDevicesButton string = "#VIEWS_pane > ul > li:nth-child(2)"
     //gets All Devices. ID includes a space which seems to be invalid so just manually navigating down the tree
@@ -94,7 +94,7 @@ func (n *Nable) AllDevicesPage() {
     time.Sleep(n.MedWait)
 }
 
-func (n *Nable) BulkEdit() *Nable {
+func (n *NewPage) BulkEdit() *NewPage {
 	bulkElement, err := n.Page.Element("#bulkEditDevicesTable")
 	if err != nil {
 		panic(err)
@@ -104,7 +104,7 @@ func (n *Nable) BulkEdit() *Nable {
 }
 
 //Edit() > GetDeviceName(). Panics on multiselect page as that's not currently supported.
-func (n *Nable) GetDeviceName() (string, bool) {
+func (n *NewPage) GetDeviceName() (string, bool) {
 	const ( 
 		deviceNameLoc string = "#deviceHeaderId > div.xtndDetailedHeaderOverview > div > span.xtndDetailedHeaderTitle"
 	)
@@ -120,7 +120,7 @@ func (n *Nable) GetDeviceName() (string, bool) {
 	deviceName, _ := n.Page.MustElement(deviceNameLoc).Text()
 	return deviceName, true
 }
-func (n *Nable) Search(searchString string) {
+func (n *NewPage) Search(searchString string) {
     const (
         searchBox string = "#lanDeviceIndex_searchBox"
         applyFilter string = "#lanDeviceIndex_applyFilter_label"
@@ -135,7 +135,7 @@ func (n *Nable) Search(searchString string) {
 
 //only works on the AllDevices Page. Selects all devices listed. 
 //If you searched for a device or set a filter it'll select that one device or group.
-func (n *Nable) SelectAll() *Nable{
+func (n *NewPage) SelectAll() *NewPage{
     const (
         selectAllBox string = "#lanDeviceIndexGrid-header > tr > th.dgrid-cell.dgrid-column-0.dgrid-selector-wrapper > div > input[type=checkbox]"
     )
@@ -145,7 +145,7 @@ func (n *Nable) SelectAll() *Nable{
     return n
 }
 //AllDevicesPage() > SelectAll() > Edit()
-func (n *Nable) Edit() *Nable {
+func (n *NewPage) Edit() *NewPage {
 	const (
 		editButton string = "#lanDeviceIndex > div > span:nth-child(2)"
 	)
@@ -156,7 +156,7 @@ func (n *Nable) Edit() *Nable {
     return n
 }
 
-func (n *Nable) settings() *Nable {
+func (n *NewPage) settings() *NewPage {
     const (
         settingsTab string = "#editLanDeviceTabContainerId_tablist_settingsTabId"
     )
@@ -167,7 +167,7 @@ func (n *Nable) settings() *Nable {
     return n
 }
 
-func (n *Nable) settingsProperties() *Nable {
+func (n *NewPage) settingsProperties() *NewPage {
     const (
         PropertiesTab string = "#settingsNestedTabContainerId_tablist_settingsPropertiesTabId"
     )
@@ -177,12 +177,12 @@ func (n *Nable) settingsProperties() *Nable {
     return n
 }
 //Edit() > DeviceProps(). Goes into Settings and clicks Properties.
-func (n *Nable) DeviceProps() *Nable {
+func (n *NewPage) DeviceProps() *NewPage {
     n.settings().settingsProperties()
     return n
 }
 
-func (n *Nable) discoveredNameCheckBox() *rod.Element {
+func (n *NewPage) discoveredNameCheckBox() *rod.Element {
     const (
         discoveredNameCheckBox string = "#useDiscoveredNameID"
     )
@@ -191,7 +191,7 @@ func (n *Nable) discoveredNameCheckBox() *rod.Element {
 
 }
 //grabs the ID for the checkbox on the Properties page and makes sure it's unchecked. It also checks if it's currently checked
-func (n *Nable) uncheckUseDiscovered() *Nable {
+func (n *NewPage) uncheckUseDiscovered() *NewPage {
 	n.Page.MustWaitStable()
     NameBoxChecked, err := n.discoveredNameCheckBox().Property("checked")
     if err != nil {
@@ -204,7 +204,7 @@ func (n *Nable) uncheckUseDiscovered() *Nable {
     return n
 }
 
-func (n *Nable) inputDeviceName(name string) *Nable {
+func (n *NewPage) inputDeviceName(name string) *NewPage {
     const (
         deviceNameField = "#deviceNameId"
     )
@@ -215,13 +215,13 @@ func (n *Nable) inputDeviceName(name string) *Nable {
 }
 //First checks to make sure the "Use Discovered Name" is unchecked so the Given name box isn't grayed out. 
 //After that it selects all the existing characters and replaces with the provided string.
-func (n *Nable) ChangeDeviceName(name string) *Nable {
+func (n *NewPage) ChangeDeviceName(name string) *NewPage {
     n.uncheckUseDiscovered().inputDeviceName(name)
 	n.Page.MustWaitStable()
     return n
 }
 //Hits save button. Hangs if there are no actual changes
-func (n *Nable) SaveChanges() *Nable {
+func (n *NewPage) SaveChanges() *NewPage {
     const (
         saveButton string = "#saveButtonId_label"
     )
@@ -231,7 +231,7 @@ func (n *Nable) SaveChanges() *Nable {
     return n
 }
 //hits the cancel button the device edit page. General used after saving.
-func (n *Nable) DevicePageCancel() *Nable {
+func (n *NewPage) DevicePageCancel() *NewPage {
     const (
         cancelButton string = "#cancelButtonId_label"
     )
@@ -242,7 +242,7 @@ func (n *Nable) DevicePageCancel() *Nable {
 }
 //hits the cancel button on the multidevice edit page. 
 //Usually the result of an error since we don't handle that page.
-func (n *Nable) MultiDevicePageCancel() *Nable {
+func (n *NewPage) MultiDevicePageCancel() *NewPage {
 	const (
 	multiDeviceCancel string = "#xtnd_form_CancelButton_0_label"
 	)
