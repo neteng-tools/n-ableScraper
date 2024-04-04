@@ -203,7 +203,7 @@ func (n *NewPage) InputOsName(osName string) *NewPage {
         osNameField = "#deviceOsId"
     )
 	n.Page.MustWaitStable()
-    n.Page.MustElement(osNameField).MustSelectAllText().MustInput(osName) 
+    n.Page.MustElement(osNameField).MustWaitStable().MustClick().MustWaitStable().MustSelectAllText().MustWaitStable().MustInput(osName)
     time.Sleep(n.ShortWait)
     return n
 }
