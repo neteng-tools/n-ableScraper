@@ -34,7 +34,7 @@ func (n *NewPage) Connect(url string) *NewPage {
 	return n
 }
 
-func (n *NewPage) Login() {
+func (n *NewPage) Login(username string, password string) {
     const (
         usernameField string = "#userNameId"
         passwordField string = "#passwordFieldId"
@@ -46,16 +46,22 @@ func (n *NewPage) Login() {
 		errBox string = "#errBoxId"
 		backButton string = "#backButton"
     )
+	loginFailed := false
     // Log in to the site.
 	for {
-		username := prompt.Credentials("Username: ")
+
+		if username == "" || loginFailed {
+			username = prompt.Credentials("Username: ")
+		}
 		
 		n.Page.MustElement(usernameField).MustInput(username)
 		fmt.Println("Clicking Next")
 		n.Page.MustElement(nextButton).MustClick()
 		n.Page.MustWaitStable()
 
-		password := prompt.Credentials("Password: ")
+		if password == "" || loginFailed {
+			password = prompt.Credentials("Password: ")
+		}
 		n.Page.MustElement(passwordField).MustInput(password)
 		n.Page.MustElement(loginButton).MustClick()
 		n.Page.MustWaitStable()
@@ -66,6 +72,7 @@ func (n *NewPage) Login() {
 		if err == nil{
 			fmt.Println("Username or Password not accepted")
 			n.Page.MustElement(backButton).MustClick()
+			loginFailed = true
 			continue
 		} 
 		break
