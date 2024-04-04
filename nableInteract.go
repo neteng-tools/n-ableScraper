@@ -208,6 +208,7 @@ func (n *NewPage) inputOsName(osName string) *NewPage {
     return n
 }
 
+
 //grabs the ID for the checkbox on the Properties page and makes sure it's unchecked. It also checks if it's currently checked
 func (n *NewPage) uncheckUseDiscovered() *NewPage {
 	n.Page.MustWaitStable()
