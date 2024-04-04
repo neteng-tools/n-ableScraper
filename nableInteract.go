@@ -198,7 +198,7 @@ func (n *NewPage) discoveredNameCheckBox() *rod.Element {
 
 }
 
-func (n *NewPage) inputOsName(osName string) *NewPage {
+func (n *NewPage) InputOsName(osName string) *NewPage {
     const (
         osNameField = "#deviceOsId"
     )
