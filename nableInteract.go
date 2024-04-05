@@ -17,13 +17,13 @@ type NewPage struct {
 
 func (n *NewPage) Fill_Defaults() *NewPage {
 	if n.ShortWait == 0 {
-		n.ShortWait = 100 * time.Millisecond
+		n.ShortWait = 300 * time.Millisecond
 	}
 	if n.MedWait == 0 {
-		n.MedWait = 500 * time.Millisecond
+		n.MedWait = 1000 * time.Millisecond
 	}
 	if n.LongWait == 0 {
-		n.LongWait = 1000 * time.Millisecond
+		n.LongWait = 3000 * time.Millisecond
 	}
 	return n
 }
@@ -92,7 +92,6 @@ func (n *NewPage) Login(username string, password string) {
 }
 
 func (n *NewPage) AllDevicesPage() {
-	fmt.Println("Navigating to Device Page")
     const allDevicesButton string = "#VIEWS_pane > ul > li:nth-child(2)"
     //gets All Devices. ID includes a space which seems to be invalid so just manually navigating down the tree
 	n.Page.MustWaitStable()
@@ -110,18 +109,19 @@ func (n *NewPage) BulkEdit() *NewPage {
 	return n
 }
 
-//Edit() > GetDeviceName(). Panics on multiselect page as that's not currently supported.
+//Edit() > GetDeviceName(). Gets device name from Device Properties page. Panics on multiselect page as that's not currently supported.
+//Great for verifying you're in the right place and allows you compare new and old device names before and after making changes.
 func (n *NewPage) GetDeviceName() (string, bool) {
 	const ( 
 		deviceNameLoc string = "#deviceHeaderId > div.xtndDetailedHeaderOverview > div > span.xtndDetailedHeaderTitle"
 	)
-	n.Page.WaitLoad()
 	n.Page.MustWaitStable()
+	time.Sleep(n.MedWait)
 	err := rod.Try(func() {
-			n.Page.Timeout(5 * time.Second).MustElement(deviceNameLoc)
+			n.Page.Timeout(10 * time.Second).MustElement(deviceNameLoc)
 	})
+	n.Page.MustWaitStable()
 	if err != nil{
-		n.Page.MustWaitStable()
 		return "", false
 	} 
 	deviceName, _ := n.Page.MustElement(deviceNameLoc).Text()
@@ -146,6 +146,7 @@ func (n *NewPage) SelectAll() *NewPage{
     const (
         selectAllBox string = "#lanDeviceIndexGrid-header > tr > th.dgrid-cell.dgrid-column-0.dgrid-selector-wrapper > div > input[type=checkbox]"
     )
+	time.Sleep(n.ShortWait)
     n.Page.MustElement(selectAllBox).MustClick()
     n.Page.MustWaitStable()
     time.Sleep(n.ShortWait)
@@ -198,17 +199,28 @@ func (n *NewPage) discoveredNameCheckBox() *rod.Element {
 
 }
 
+func (n *NewPage) osNameSelect() *NewPage {
+    const (
+        osNameDropDown = "#widget_deviceOsId > div.dijitReset.dijitRight.dijitButtonNode.dijitArrowButton.dijitDownArrowButton.dijitArrowButtonContainer > input"
+		osNameDropOption = "#deviceOsId_popup0"
+    )
+	n.Page.MustWaitStable()
+    n.Page.MustElement(osNameDropDown).MustClick()
+	n.Page.MustElement(osNameDropOption).MustClick()
+	n.Page.MustWaitStable()
+
+    return n
+}
+
 func (n *NewPage) InputOsName(osName string) *NewPage {
     const (
         osNameField = "#deviceOsId"
     )
 	n.Page.MustWaitStable()
-    n.Page.MustElement(osNameField).MustWaitStable().MustClick().MustWaitStable().MustSelectAllText().MustWaitStable().MustInput(osName)
+    n.Page.MustElement(osNameField).MustSelectAllText().MustWaitStable().MustInput(osName)
     time.Sleep(n.ShortWait)
-    return n
+	return n
 }
-
-
 //grabs the ID for the checkbox on the Properties page and makes sure it's unchecked. It also checks if it's currently checked
 func (n *NewPage) uncheckUseDiscovered() *NewPage {
 	n.Page.MustWaitStable()
@@ -239,14 +251,16 @@ func (n *NewPage) ChangeDeviceName(name string) *NewPage {
 	n.Page.MustWaitStable()
     return n
 }
-//Hits save button. Hangs if there are no actual changes
+//Hits save button on device settings page. Saving takes 3-10 seconds so there's a mandatory 4 second delay after hitting the button.
+//It might still be worth it to add a longer manual delay to avoid issues.
 func (n *NewPage) SaveChanges() *NewPage {
     const (
         saveButton string = "#saveButtonId_label"
     )
     n.Page.MustElement(saveButton).MustClick()
-    n.Page.MustWaitStable()
 	time.Sleep(n.ShortWait)
+    n.Page.MustWaitStable()
+	time.Sleep(n.LongWait)
     return n
 }
 //hits the cancel button the device edit page. General used after saving.
