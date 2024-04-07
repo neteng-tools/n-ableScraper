@@ -157,10 +157,8 @@ func (n *NewPage) Edit() *NewPage {
 	const (
 		editButton string = "#lanDeviceIndex > div > span:nth-child(2)"
 	)
-	n.Page.MustWaitStable()
     n.Page.MustElement(editButton).MustClick()    
     n.Page.MustWaitStable()
-    time.Sleep(n.ShortWait)
     return n
 }
 
