@@ -258,9 +258,9 @@ func (n *NewPage) SaveChanges() *NewPage {
         saveButton string = "#saveButtonId_label"
     )
     n.Page.MustElement(saveButton).MustClick()
-	time.Sleep(n.ShortWait)
+	time.Sleep(n.MedWait)
+	n.Page.Reload()
     n.Page.MustWaitStable()
-	time.Sleep(n.LongWait)
     return n
 }
 //hits the cancel button the device edit page. General used after saving.
