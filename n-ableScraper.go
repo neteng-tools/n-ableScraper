@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/launcher"
 	"github.com/neteng-tools/cliPrompt"
 )
 
@@ -27,8 +28,15 @@ func (n *NewPage) Fill_Defaults() *NewPage {
 	}
 	return n
 }
-
+//Start a new browser session. Disables Leakless in go-rod package by default. If you would like to use leakless use ConnectWLeakless() instead
 func (n *NewPage) Connect(url string) *NewPage {
+	launch := launcher.New().Leakless(false).MustLaunch()
+	n.Page = rod.New().ControlURL(launch).MustConnect().MustPage(url)
+	n.Fill_Defaults()
+	return n
+}
+
+func (n *NewPage) ConnectWLeakless(url string) *NewPage {
 	n.Page = rod.New().MustConnect().MustPage(url)
 	n.Fill_Defaults()
 	return n
