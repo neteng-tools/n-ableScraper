@@ -1,4 +1,4 @@
-module github.com/neteng-tools/n-AbleScraper
+module github.com/neteng-tools/n-ableScraper
 
 go 1.20
 
